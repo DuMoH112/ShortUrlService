@@ -1,0 +1,34 @@
+version: "3"
+services:
+  flask:
+    build: ./backend
+    container_name: flask-sus
+    environment:
+      - CONFIG_PATH=/backend/settings.ini
+      - FLASK_APP=main.py
+
+      - REDIS_PASSWORD=PASSWORD123
+
+      # для отладки (при запуске в релиз убрать!)
+      - FLASK_DEBUG=1
+      - PYTHONUNBUFFERED=True                   # Позволяет отслеживать процесс работы приложения в командной строке
+    restart: on-failure
+    volumes:
+      - ./backend:/backend
+    ports:
+      - "5555:5000"
+    # command: python3 main.py
+    # для релиза
+    command: gunicorn main:create_flask_app() --timeout=3600000 --workers 1 --threads 200 -b 0.0.0.0:5000 --reload
+  
+  redis:
+    build: ./redis
+    container_name: redis-sus
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_PASSWORD=PASSWORD123
+    restart: on-failure
+    volumes:
+      - ./redis/data:/data
+    ports:
+      - 6375:6379

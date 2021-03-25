@@ -1,0 +1,11 @@
+# Flask
+Flask==1.1.2
+
+Flask-Cors==3.0.9
+flask_sslify==0.1.5
+
+# gunicorn
+gunicorn==20.0.4
+
+# Redis
+redis==3.5.3
