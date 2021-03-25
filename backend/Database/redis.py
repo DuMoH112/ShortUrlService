@@ -34,21 +34,8 @@ class Redis_db:
             result = func(self, *args, **kwargs)
             if func.__name__ == 'select_data':
                 return result.decode()
-            elif func.__name__ == 'pipeline_query':
-                decode_result = []
-                lists = result['result'] if type(
-                    result['result']
-                ) == list else [
-                    result['result']
-                ]
-                for row in lists:
-                    if type(row) == bytes:
-                        decode_result.append(row.decode('utf-8'))
-                    else:
-                        decode_result.append(row)
-
-                result['result'] = decode_result
-                return result
+            elif func.__name__ == 'hm_select_data':
+                return [val.decode() for val in result]
 
         return the_wrapper_around_the_original_function
 
@@ -81,6 +68,12 @@ class Redis_db:
         return True
 
     @__handler_exceptions
+    def hm_insert_data(self, name, dict_):
+        self.connect.hmset(name=name, mapping=dict_)
+
+        return True
+
+    @__handler_exceptions
     def del_data(self, field):
         res = self.connect.delete(field)
 
@@ -90,5 +83,12 @@ class Redis_db:
     @__byte_to_str
     def select_data(self, field):
         res = self.connect.get(field)
+
+        return res
+
+    @__handler_exceptions
+    @__byte_to_str
+    def hm_select_data(self, name, fields):
+        res = self.connect.hmget(name=name, keys=fields)
 
         return res
