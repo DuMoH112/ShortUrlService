@@ -8,4 +8,4 @@ flask_sslify==0.1.5
 gunicorn==20.0.4
 
 # Redis
-redis==3.5.3
+redis==4.5.3
